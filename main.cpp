@@ -89,16 +89,7 @@ void WiFiStart()
 {
   ulReconncount++;
 
-  EEPROM.begin(512);
-  delay(10);
-  String zeit = "";
-  for (int i = 100; i < 105; i++)
-  {
-    zeit += char(EEPROM.read(i));
-  }
-  EEPROM.end();
-  Serial.print("Das ist die Zeitverschiebung: ");
-  Serial.println(zeit);
+ 
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -115,7 +106,21 @@ void WiFiStart()
   // Print the IP address
   Serial.println(WiFi.localIP());
 
-  ///////////////////////////////
+}
+
+void NTP()
+{
+   EEPROM.begin(512);
+  delay(10);
+  String zeit = "";
+  for (int i = 100; i < 105; i++)
+  {
+    zeit += char(EEPROM.read(i));
+  }
+  EEPROM.end();
+  Serial.print("Das ist die Zeitverschiebung: ");
+  Serial.println(zeit);
+   ///////////////////////////////
   // connect to NTP and get time
   ///////////////////////////////
   ulSecs2000_timer = getNTPTimestamp() + 3600 +  zeit.toInt();
@@ -123,8 +128,8 @@ void WiFiStart()
   Serial.println(epoch_to_string(ulSecs2000_timer).c_str());
 
   ulSecs2000_timer -= millis() / 1000; // keep distance to millis() counter
+ 
 }
-
 
 /////////////////////////////////////
 // make html table for measured data
@@ -296,7 +301,7 @@ String MakeHTTPFooter()
   sResponse += (uint32_t)system_get_free_heap_size();
   sResponse += F(" - Max. Datenpunkte=");
   sResponse += ulNoMeasValues;
-  sResponse += F("<BR>SMASE 02/2016<BR></body></html>");
+  sResponse += F("<BR>SMASE 03/2016 | Tobias Winter -> Mail: tobias.winter90@gmail.com <BR></body></html>");
 
   return (sResponse);
 }
@@ -400,6 +405,8 @@ void ds18b20() {
   Serial.println(temp3);
   Serial.println("Temperature_neu4: ");
   Serial.println(temp4);
+
+  NTP();
 }
 
 
