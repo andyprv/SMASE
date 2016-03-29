@@ -12,3 +12,6 @@ Pufferspeicher Anzeige
  * http://arduino.esp8266.com/staging/package_esp8266com_index.json
  * 
  * Tobias Winter - 08.02.2016
+
+ * Changelog: 
+ * 29.03.2016 | Alle Temperaturen werden auf einer Seite angezeigt. Das Datum und die Uhrzeit aktualisiert sich bei jedem Temperaturaufruf.Die Sommerzeit muss in den Einstellungen geändert werden.
