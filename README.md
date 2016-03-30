@@ -1,4 +1,4 @@
-# SMASE
+﻿# SMASE
 Pufferspeicher Anzeige
 
  * Ziel des SMASE Sensors ist es, die Temperatur am Pufferspeicher an drei Höhen auszulesen, sowie die Temperatur am Heizungsvorlauf zu messen.  
@@ -15,3 +15,5 @@ Pufferspeicher Anzeige
 
  * Changelog: 
  * 29.03.2016 | Alle Temperaturen werden auf einer Seite angezeigt. Das Datum und die Uhrzeit aktualisiert sich bei jedem Temperaturaufruf.Die Sommerzeit muss in den Einstellungen geändert werden.
+ 
+ * 30.03.2016 | gemessene Temperaturen werden geprüft ob Werte plausibel sind, wenn nein wird nochmal gemessen bis ein plausibler Wert erscheint.(max. 5 Wiederholungen)
