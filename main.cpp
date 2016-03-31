@@ -89,7 +89,7 @@ void WiFiStart()
 {
   ulReconncount++;
 
- 
+
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -110,7 +110,7 @@ void WiFiStart()
 
 void NTP()
 {
-   EEPROM.begin(512);
+  EEPROM.begin(512);
   delay(10);
   String zeit = "";
   for (int i = 100; i < 105; i++)
@@ -120,7 +120,7 @@ void NTP()
   EEPROM.end();
   Serial.print("Das ist die Zeitverschiebung: ");
   Serial.println(zeit);
-   ///////////////////////////////
+  ///////////////////////////////
   // connect to NTP and get time
   ///////////////////////////////
   ulSecs2000_timer = getNTPTimestamp() + 3600 +  zeit.toInt();
@@ -128,7 +128,7 @@ void NTP()
   Serial.println(epoch_to_string(ulSecs2000_timer).c_str());
 
   ulSecs2000_timer -= millis() / 1000; // keep distance to millis() counter
- 
+
 }
 
 /////////////////////////////////////
@@ -351,16 +351,51 @@ void sendTeperatureTS(int temp1, int temp2, int temp3, int temp4)
 }//end send
 
 void ds18b20() {
-  //int temp1, temp2, temp3, temp4;
-  //char buffer[10];
+
   DS18B201.requestTemperatures();
   DS18B202.requestTemperatures();
   DS18B203.requestTemperatures();
   DS18B204.requestTemperatures();
+
+  int i1 = 0;
+  int i2 = 0;
+  int i3 = 0;
+  int i4 = 0;
   temp11 = DS18B201.getTempCByIndex(0);
+  while ((temp11 == 85) && (i1 < 5))
+  {
+    delay (1000);
+    DS18B201.requestTemperatures();
+    temp11 = DS18B201.getTempCByIndex(0);
+    i1++;
+  }
+
   temp22 = DS18B202.getTempCByIndex(0);
+  while ((temp22 == 85) && (i2 < 5))
+  {
+    delay (1000);
+    DS18B202.requestTemperatures();
+    temp22 = DS18B202.getTempCByIndex(0);
+    i2++;
+  }
+
   temp33 = DS18B203.getTempCByIndex(0);
+  while ((temp33 == 85) && (i3 < 5))
+  {
+    delay (1000);
+    DS18B203.requestTemperatures();
+    temp33 = DS18B203.getTempCByIndex(0);
+    i3++;
+  }
+
   temp44 = DS18B204.getTempCByIndex(0);
+  while ((temp44 == 85) && (i4 < 5))
+  {
+    delay (1000);
+    DS18B204.requestTemperatures();
+    temp44 = DS18B204.getTempCByIndex(0);
+    i4++;
+  }
 
 
   EEPROM.begin(512);
@@ -408,6 +443,7 @@ void ds18b20() {
 
   NTP();
 }
+
 
 
 void mainloop()
@@ -517,45 +553,25 @@ void mainloop()
       Serial.println(sCmd);
     }
   }
- 
-  
+
+
   ///////////////////////////
   // format the html response
   ///////////////////////////
   // Startseite ////////////////////////////////
-  
+
   String sResponse, sResponse2, sHeader;
-  
+
   if (sPath == "/")
   {
     ulReqcount++;
     int iIndex = (ulMeasCount - 1) % ulNoMeasValues;
     sResponse  = F("<html>\n<head>\n<title>WLAN Logger f&uuml;r Pufferspeichertemperatur</title>\n");
-   /* sResponse += pfTemp1[iIndex];
-    sResponse += F(",temp2=");
-    sResponse += pfTemp2[iIndex];
-    sResponse += F(",temp3=");
-    sResponse += pfTemp3[iIndex];
-    sResponse += F(";\ngoogle.load('visualization', '1', {packages: ['gauge']});google.setOnLoadCallback(drawgaugetemp1);google.setOnLoadCallback(drawgaugetemp2)");
-    sResponse += F(";google.setOnLoadCallback(drawgaugetemp3);");
-    sResponse += F("\nvar gaugetemp1Options = {min: 0, max: 100, greenFrom: 50, greenTo:75, yellowFrom: 75, yellowTo: 90,redFrom: 90, redTo: 100, minorTicks: 10, majorTicks: ['0','10','20','30','40','50','60','70','80','90','100']};\n");
-    sResponse += F("var gaugetemp2Options = {min: 0, max: 100, greenFrom: 50, greenTo:75, yellowFrom: 75, yellowTo: 90,redFrom: 90, redTo: 100, minorTicks: 10, majorTicks: ['0','10','20','30','40','50','60','70','80','90','100']};\n");
-    sResponse += F("var gaugetemp3Options = {min: 0, max: 100, greenFrom: 50, greenTo:75, yellowFrom: 75, yellowTo: 90,redFrom: 90, redTo: 100, minorTicks: 10, majorTicks: ['0','10','20','30','40','50','60','70','80','90','100']};\n");
-    sResponse += F("var gaugetemp1,gaugetemp2,gaugetemp3,gaugetemp4;\n\nfunction drawgaugetemp1() {\ngaugetemp1Data = new google.visualization.DataTable();\n");
-    sResponse += F("gaugetemp1Data.addColumn('number', '\260C');\ngaugetemp1Data.addRows(1);\ngaugetemp1Data.setCell(0, 0, temp1);\ngaugetemp1 = new google.visualization.Gauge(document.getElementById('gaugetemp1_div'));\ngaugetemp1.draw(gaugetemp1Data, gaugetemp1Options);\n}\n\n");
-    sResponse += F("function drawgaugetemp2() {\ngaugetemp2Data = new google.visualization.DataTable();\ngaugetemp2Data.addColumn('number', '\260C');\ngaugetemp2Data.addRows(1);\ngaugetemp2Data.setCell(0, 0, temp2);\ngaugetemp2 = new google.visualization.Gauge(document.getElementById('gaugetemp2_div'));\ngaugetemp2.draw(gaugetemp2Data, gaugetemp2Options);\n}\n");
-    sResponse += F("function drawgaugetemp3() {\ngaugetemp3Data = new google.visualization.DataTable();\ngaugetemp3Data.addColumn('number', '\260C');\ngaugetemp3Data.addRows(1);\ngaugetemp3Data.setCell(0, 0, temp3);\ngaugetemp3 = new google.visualization.Gauge(document.getElementById('gaugetemp3_div'));\ngaugetemp3.draw(gaugetemp3Data, gaugetemp3Options);\n}\n");
-    sResponse += F("</script>\n
-    
-    */
     sResponse += F("</head>\n<body>\n<font color=\"#000000\"><body bgcolor=\"#d0d0f0\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\"><h1>WLAN Logger f&uuml;r Pufferspeichertemperatur</h1>SMASE<BR><BR><FONT SIZE=+1>Letzte Messung um ");
-    //sResponse += epoch_to_string(pulTime[iIndex]).c_str();
-    //sResponse += F(" UTC<BR>\n");
     sResponse += F("Seite: Temperaturen -> Zeigt die gemessenen Temperaturen an <br>");
-    sResponse += F("Seite: Grafik -> Zeigt den Temperaturverlauf (Diagramm) der letzten 24 h an <br>");
-        sResponse += F("Seite: Grafik -> Zeigt den Temperaturverlauf (Tabelle) der letzten 24 h an <br>");
-                sResponse += F("Seite: Settings -> Einstellungen <br>");
-    //sResponse += F("</fieldset>");
+    sResponse += F("<hr>Seite: Grafik -> Zeigt den Temperaturverlauf (Diagramm) der letzten 24 h an <br>");
+    sResponse += F("<hr>Seite: Grafik -> Zeigt den Temperaturverlauf (Tabelle) der letzten 24 h an <br>");
+    sResponse += F("<hr>Seite: Settings -> Einstellungen <br>");
     sResponse += F(" <div style=\"clear:both;\"></div>");
     sResponse2 = F("<p>Temperaturverlauf - Seiten laden l&auml;nger:<BR>  <a href=\"/anzeige\"><button>Temperaturen</button></a>    <a href=\"/grafik\"><button>Grafik</button></a>     <a href=\"/tabelle\"><button>Tabelle</button></a>     <a href=\"/settings\"><button>Settings</button></a></p>");
     sResponse2 += MakeHTTPFooter().c_str();
@@ -565,121 +581,47 @@ void mainloop()
     client.print(sResponse);
     client.print(sResponse2);
   }
-  
-/*
-  ///////////////////////////
-  // format the html response
-  ///////////////////////////
-  // Startseite ////////////////////////////////
- // String sResponse, sResponse2, sHeader;
-  if (sPath == "/test")
-  {
-    ulReqcount++;
-    int iIndex = (ulMeasCount - 1) % ulNoMeasValues;
-    sResponse  = F("<html>\n<head>\n<title>WLAN Logger f&uuml;r Pufferspeichertemperatur</title>\n<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n<script type=\"text/javascript\">\n");
-/*    sResponse += F(" var temp1=");
-    sResponse += pfTemp1[iIndex];
-    sResponse += F(",temp2=");
-    sResponse += pfTemp2[iIndex];
-    sResponse += F(",temp3=");
-    sResponse += pfTemp3[iIndex];
-    sResponse += F(",temp4=");
-    sResponse += pfTemp4[iIndex];
-    */
-    /*
-    sResponse += F("google.charts.load('current', {'packages':['gauge']});\n");
-    sResponse += F("google.charts.setOnLoadCallback(drawGauge);\n"); 
-    sResponse += F("\nvar gaugeOptions = {min: 0, max: 100, greenFrom: 50, greenTo:75, yellowFrom: 75, yellowTo: 90,redFrom: 90, redTo: 100, minorTicks: 10, majorTicks: ['0','10','20','30','40','50','60','70','80','90','100']};\n");
-    sResponse += F("var gauge;\n");
-    sResponse += F("function drawgauge() {gaugeData = new google.visualization.DataTable();\n");
-    sResponse += F("gaugeData.addColumn('number', 'P. oben \260C');/n");
-    sResponse += F("gaugeData.addColumn('number', 'P. mitte \260C');/n");
-    sResponse += F("gaugeData.addColumn('number', 'P. unten \260C');/n");
-    sResponse += F("gaugeData.addColumn('number', 'Hz VL \260C');/n");
-    sResponse += F("gaugeData.addRows(2);/n");
-    sResponse += F("gaugeData.setCell(0, 0, 10);\n");
-    sResponse += F("gaugeData.setCell(0, 1, 20);\n");
-    sResponse += F("gaugeData.setCell(0, 2, 30);\n");
-    sResponse += F("gaugeData.setCell(0, 3, 40);\n");
-    sResponse += F("gauge = new google.visualization.Gauge(document.getElementById('gauge_div'));\n");
-    sResponse += F("gauge.draw(gaugeData, gaugeOptions);\n}\n");
-    sResponse += F("</script>\n</head>\n<body>\n<font color=\"#000000\"><body bgcolor=\"#d0d0f0\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\"><h1>WLAN Logger f&uuml;r Pufferspeichertemperatur</h1>SMASE<BR><BR><FONT SIZE=+1>Letzte Messung um ");
-    sResponse += epoch_to_string(pulTime[iIndex]).c_str();
-    sResponse += F(" UTC<BR>\n");
-    sResponse += F("<fieldset><legend>Pufferspeicher</legend>");
-    sResponse += F(" <div id=\"gauge_div\" style=\"float:left; width:160px; height: 640px;\"></div>\n");
-    sResponse += F("</fieldset>");
-    sResponse += F(" <div style=\"clear:both;\"></div>");
-    sResponse2 = F("<p>Temperaturverlauf - Seiten laden l&auml;nger:<BR>  <a href=\"/lauf\"><button>Vorlauf</button></a>    <a href=\"/grafik\"><button>Grafik</button></a>     <a href=\"/tabelle\"><button>Tabelle</button></a>     <a href=\"/settings\"><button>Settings</button></a></p>");
-    sResponse2 += MakeHTTPFooter().c_str();
 
-    // Send the response to the client
-    client.print(MakeHTTPHeader(sResponse.length() + sResponse2.length()).c_str());
-    client.print(sResponse);
-    client.print(sResponse2);
-  }
 
-*/
-  // Startseite ////////////////////////////////
-  // String sResponse, sResponse2, sHeader;
- // if (sPath == "/lauf")
   if (sPath == "/anzeige")
   {
     ulReqcount++;
     int iIndex = (ulMeasCount - 1) % ulNoMeasValues;
-  //  sResponse  = F("<html>\n<head>\n<title>WLAN Logger f&uuml;r Pufferspeichertemperatur</title>\n<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n<script type=\"text/javascript\">\n");
     sResponse  = F("<html>\n<head>\n<title>WLAN Logger f&uuml;r Pufferspeichertemperatur</title>\n<script type=\"text/javascript\" src=\"https://www.gstatic.com/charts/loader.js\"></script>\n");
     sResponse += F("<script type=\"text/javascript\">\ngoogle.charts.load('current', {'packages':['gauge']});\n");
     sResponse += F("  google.charts.setOnLoadCallback(drawGauge); \n");
-  sResponse += F("\nvar gaugeOptions = {min: 0, max: 100, greenFrom: 50, greenTo:75, yellowFrom: 75, yellowTo: 90,redFrom: 90, redTo: 100, minorTicks: 10, majorTicks: ['0','10','20','30','40','50','60','70','80','90','100']};\n");
-  //  sResponse += F("  var gaugeOptions = {min: 0, max: 280, yellowFrom: 200, yellowTo: 250, redFrom: 250, redTo: 280, minorTicks: 5}; \n");
+    sResponse += F("\nvar gaugeOptions = {min: 0, max: 100, greenFrom: 50, greenTo:75, yellowFrom: 75, yellowTo: 90,redFrom: 90, redTo: 100, minorTicks: 10, majorTicks: ['0','10','20','30','40','50','60','70','80','90','100']};\n");
     sResponse += F("   var gauge; \n");
     sResponse += F("  function drawGauge() { \n");
     sResponse += F("       gaugeData = new google.visualization.DataTable();  \n");
-     //   sResponse += F("gaugeData.addColumn('number', 'P. oben \260C');/n");
-  //  sResponse += F("gaugeData.addColumn('number', 'P. mitte \260C');/n");
-   // sResponse += F("gaugeData.addColumn('number', 'unten');/n");
- //   sResponse += F("gaugeData.addColumn('number', 'Hz VL \260C');/n");
     sResponse += F("       gaugeData.addColumn('number', 'oben');  \n");
     sResponse += F("       gaugeData.addColumn('number', 'mitte');  \n");
     sResponse += F("       gaugeData.addColumn('number', 'unten');  \n");
-        sResponse += F("       gaugeData.addColumn('number', 'vorlauf');  \n");
+    sResponse += F("       gaugeData.addColumn('number', 'vorlauf');  \n");
     sResponse += F("       gaugeData.addRows(2);  \n");
     sResponse += F("       gaugeData.setCell(0, 0, ");
     sResponse += pfTemp1[iIndex];
-   // sResponse += F(",temp2=");
-  //  120);  \n");
-      sResponse += F(" ); \n");
+    sResponse += F(" ); \n");
     sResponse += F("   gaugeData.setCell(0, 1, ");
-        sResponse += pfTemp2[iIndex];
-        sResponse += F(" ); \n");
+    sResponse += pfTemp2[iIndex];
+    sResponse += F(" ); \n");
     sResponse += F("   gaugeData.setCell(0, 2, ");
-        sResponse += pfTemp3[iIndex];
-        sResponse += F(" ); \n");
-     sResponse += F("  gaugeData.setCell(0, 3, ");
-         sResponse += pfTemp4[iIndex];
-         sResponse += F(" ); \n");
+    sResponse += pfTemp3[iIndex];
+    sResponse += F(" ); \n");
+    sResponse += F("  gaugeData.setCell(0, 3, ");
+    sResponse += pfTemp4[iIndex];
+    sResponse += F(" ); \n");
     sResponse += F("       gauge = new google.visualization.Gauge(document.getElementById('gauge_div'));  \n");
     sResponse += F("  gauge.draw(gaugeData, gaugeOptions);  \n");
     sResponse += F("  } \n");
- //   sResponse += F(" function changeTemp(dir) {  \n");
-  //  sResponse += F("        gaugeData.setValue(0, 0, gaugeData.getValue(0, 0) + dir * 25); \n");
-  //  sResponse += F("        gaugeData.setValue(0, 1, gaugeData.getValue(0, 1) + dir * 20); \n");
- //   sResponse += F("         gauge.draw(gaugeData, gaugeOptions);\n");
-  //  sResponse += F("  } \n");
     sResponse += F("  </script> \n  </head> \n <body> \n<font color=\"#000000\"><body bgcolor=\"#d0d0f0\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=yes\"><h1>WLAN Logger f&uuml;r Pufferspeichertemperatur</h1>SMASE<BR><BR><FONT SIZE=+1>Letzte Messung um ");
-     sResponse += epoch_to_string(pulTime[iIndex]).c_str();
+    sResponse += epoch_to_string(pulTime[iIndex]).c_str();
     sResponse += F(" UTC<BR>\n");
     sResponse += F("<fieldset><legend>Pufferspeicher</legend>");
     sResponse += F("    <div id=\"gauge_div\" style=\"width:140px; height: 560px;\"></div> \n");
-        sResponse += F("</fieldset>");
-  //  sResponse += F("    <input type=\"button\" value=\"Go Faster\" onclick=\"changeTemp(1)\" /> \n");
-  //  sResponse += F("   <input type=\"button\" value=\"Slow down\" onclick=\"changeTemp(-1)\" />  \n");
-      sResponse += F(" <div style=\"clear:both;\"></div>");
+    sResponse += F("</fieldset>");
+    sResponse += F(" <div style=\"clear:both;\"></div>");
     sResponse2 = F("<p>Temperaturverlauf - Seiten laden l&auml;nger:<BR>  <a href=\"/lauf\"><button>Vorlauf</button></a>    <a href=\"/grafik\"><button>Grafik</button></a>     <a href=\"/tabelle\"><button>Tabelle</button></a>     <a href=\"/settings\"><button>Settings</button></a></p>");
-  
-  //  sResponse += F(" </body> \n </html>  \n");
-    
     sResponse2 += MakeHTTPFooter().c_str();
 
     // Send the response to the client

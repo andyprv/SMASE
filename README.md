@@ -16,4 +16,4 @@ Pufferspeicher Anzeige
  * Changelog: 
  * 29.03.2016 | Alle Temperaturen werden auf einer Seite angezeigt. Das Datum und die Uhrzeit aktualisiert sich bei jedem Temperaturaufruf.Die Sommerzeit muss in den Einstellungen geändert werden.
  
- * 30.03.2016 | gemessene Temperaturen werden geprüft ob Werte plausibel sind, wenn nein wird nochmal gemessen bis ein plausibler Wert erscheint.(max. 5 Wiederholungen)
+ * 30.03.2016 | gemessene Temperaturen werden geprüft ob Werte plausibel sind, wenn nein wird nochmal gemessen bis ein plausibler Wert erscheint.(max. 5 Wiederholungen) * 31.03.2016 | gemessene Temperaturen werden geprüft ob Werte plausibel sind (ungleich 85 Grad C), wenn nein wird nochmal gemessen bis ein plausibler Wert erscheint.(max. 5 Wiederholungen)
